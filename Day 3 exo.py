@@ -1,20 +1,18 @@
 import pandas as pd
 import seaborn as sns
-from sklearn.datasets import load_breast_cancer, load_iris
+from sklearn.datasets import fetch_california_housing, load_iris
 from sklearn.preprocessing import PolynomialFeatures, StandardScaler, Normalizer
 from sklearn.decomposition import PCA
 from sklearn.cluster import DBSCAN, AgglomerativeClustering, KMeans
 from sklearn.metrics import calinski_harabasz_score, davies_bouldin_score, silhouette_score
 
-breast_cancer = load_breast_cancer()
-X = breast_cancer["data"]
-
+housing = fetch_california_housing()
+X = housing["data"]
 poly = PolynomialFeatures(degree=2, include_bias=False)
-poly.fit_transform(X)
-poly.get_feature_names()
-df = pd.DataFrame(poly.fit_transform(X), columns=poly.get_feature_names())
-df["y"] = breast_cancer["target"]
+df = pd.DataFrame(poly.fit_transform(X), columns=poly.get_feature_names(housing.feature_names))
+df["y"] = housing["target"]
 df.to_csv("./output/polynomials.csv")
+
 
 """"
 Exercice 2
