@@ -2,7 +2,7 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split, GridSearchCV
-from sklearn.metrics import roc_auc_score
+from sklearn.metrics import roc_auc_score, confusion_matrix
 from sklearn.linear_model import LinearRegression as OLS
 from sklearn.linear_model import Lasso, Ridge
 from sklearn.datasets import fetch_california_housing, load_breast_cancer, load_diabetes
@@ -41,13 +41,11 @@ diabetes = load_diabetes()
 X = diabetes["data"]
 y = diabetes["target"]
 diabetes[""]
-
-
 X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
 
 #Model Pipelines
 algorithms = [("scaler", StandardScaler()),
-               ("nn", MLPRegressor(solver="adam", random_state=42, max_iter=1000))] #MinMax is the variables, regrossor the values?
+               ("nn", MLPRegressor(solver="lbfgs", random_state=42, max_iter=1000))] #MinMax is the variables, regrossor the values?
 pipe = Pipeline(algorithms, verbose=True) #what does verbose mean
 param_grid = {"nn__hidden_layer_sizes": [(75, 75), (90, 90), (100, 100)], #__ means it takes the key word
               "nn__alpha": [0.001, 0.0025, 0.005]}
@@ -75,7 +73,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
 
 
 algorithms = [("scaler", MinMaxScaler()),
-            ("nn", MLPRegressor(solver="lbfgs", random_state=42, max_iter=1000))] #use lbfgs because it is a small dataset
+            ("nn", MLPClassifier(solver="lbfgs", random_state=42, max_iter=1000))] #use lbfgs because it is a small dataset
 pipe = Pipeline(algorithms, verbose=True)
 param_grid = {"nn__hidden_layer_sizes": [(75, 75), (100, 100)],
               "nn__alpha": [0.001, 0.005]}
@@ -85,12 +83,13 @@ grid.best_estimator_
 #The best estimator is that with  alpha=0.001, hidden_layer_sizes = (100, 100). It's score is:
 grid.best_score_
 #because it is close to 1. This means the total negative and total positive curves intersect very little.
-# Therefore, distinguishes well between positive class and negative class. It is a good generalisation.
+#Therefore, the model distinguishes well between positive class and negative class.
+#It is a good generalisation.
 
 
 #(d)
-results = pd.DataFrame(grid.cv_results_)
-scores = results["mean_test_score"].values.reshape(2,2)
-sns.heatmap(scores, annot=True,
-            xticklabels=param_grid["nn__hidden_layer_sizes"],
-            yticklabels=param_grid["nn__alpha"])
+preds = grid.predict(X_test)
+matrix = confusion_matrix(y_test, preds)
+sns.heatmap(matrix, annot=True,
+            xticklabels=cancer["target_names"],
+            yticklabels=cancer["target_names"])
