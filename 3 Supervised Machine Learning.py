@@ -73,7 +73,7 @@ print(f"They scored {grid.best_score_}")
 best_estimator = grid.best_estimator_
 tmp = best_estimator._final_estimator
 df = pd.DataFrame(tmp.coefs_[0])
-sns.heatmap(df, yticklabels=diabetes["feature_names"])  # probably wrong
+sns.heatmap(df, yticklabels=diabetes["feature_names"])
 
 # Exercise 3
 
